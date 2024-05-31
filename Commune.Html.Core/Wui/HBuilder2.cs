@@ -18,6 +18,13 @@ namespace NitroBolt.Wui
       }
     }
 
+    /// <summary>
+    /// Вызываем при обработке команд json
+    /// </summary>
+    /// <param name="page"></param>
+    /// <param name="json"></param>
+    /// <param name="isStrongBinding"></param>
+    /// <returns></returns>
     public static hevent? FindEvent(this HElement page, JsonData json, bool isStrongBinding)
     {
       foreach (HElement element in RoundPage(page))
