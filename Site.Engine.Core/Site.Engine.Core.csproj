@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Commune.Basis.Core\Commune.Basis.Core.csproj" />
+    <ProjectReference Include="..\Commune.Data.Core\Commune.Data.Core.csproj" />
+    <ProjectReference Include="..\Commune.Html.Core\Commune.Html.Core.csproj" />
+    <ProjectReference Include="..\Commune.Task.Core\Commune.Task.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="NitroBolt.Wui.Core">
+      <HintPath>..\_Libraries\NitroBolt.Wui.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="User\" />
+  </ItemGroup>
+
+</Project>
