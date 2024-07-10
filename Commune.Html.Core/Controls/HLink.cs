@@ -13,6 +13,9 @@ namespace Commune.Html
     //readonly IHtmlControl innerControl;
     readonly string url;
     readonly HStyle[] pseudoClasses;
+
+    public HAttribute[] AdditionalAttributes = Array.Empty<HAttribute>();
+
     public HLink(string url, string caption, params HStyle[] pseudoClasses) :
       base("HLink", "")
     {
@@ -29,7 +32,15 @@ namespace Commune.Html
       this.pseudoClasses = pseudoClasses;
     }
 
-    static readonly HBuilder h = HBuilder.Extension;
+		//public HLink(string url, HObject innerElement, params HStyle[] pseudoClasses) :
+		//	base("HLink", "")
+		//{
+		//	this.url = url;
+		//	this.linkObject = innerElement;
+		//	this.pseudoClasses = pseudoClasses;
+		//}
+
+		static readonly HBuilder h = HBuilder.Extension;
 
     public HElement ToHtml(string cssClassName, StringBuilder css)
     {
@@ -40,15 +51,23 @@ namespace Commune.Html
 
       HtmlHlp.AddMediaToCss(css, cssClassName, MediaExtensions);
 
-      List<object> elements = new List<object>();
-      elements.Add(h.href(url));
+			List<object> elements = new()
+			{
+				h.href(url)
+			};
 
-      if (linkObject is IHtmlControl)
+      elements.AddRange(AdditionalAttributes);
+
+			if (linkObject is IHtmlControl control)
       {
-        HElement innerElement = ((IHtmlControl)linkObject).ToHtml(string.Format("{0}_inner", cssClassName), css);
+        HElement innerElement = control.ToHtml(string.Format("{0}_inner", cssClassName), css);
 
         elements.Add(innerElement);
       }
+      //else if (linkObject is HObject element)
+      //{
+      //  elements.Add(element);
+      //}
       else
       {
         elements.Add(linkObject);

@@ -127,11 +127,29 @@ namespace Commune.Basis
 			return null;
 		}
 
+		public static double? ToDouble(string? value)
+		{
+			if (value == null)
+				return null;
+
+			if (double.TryParse(value.Replace(',', '.'), CultureInfo.InvariantCulture, out double result))
+				return result;
+			return null;
+		}
+
+		public static string? FromDouble(double? value)
+		{
+			if (value == null)
+				return null;
+			return value.Value.ToString(CultureInfo.InvariantCulture);
+		}
 
 		public static float? ToFloat(string? value)
 		{
-			float result;
-			if (float.TryParse(value, CultureInfo.InvariantCulture, out result))
+			if (value == null)
+				return null;
+
+			if (float.TryParse(value.Replace(',', '.'), CultureInfo.InvariantCulture, out float result))
 				return result;
 			return null;
 		}

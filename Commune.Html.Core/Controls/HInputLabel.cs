@@ -9,13 +9,13 @@ namespace Commune.Html
 {
 	public class HInputLabel : ExtensionContainer, IHtmlControl
 	{
-		readonly string identifier;
+		readonly string labelFor;
 		readonly string caption;
 		readonly HStyle[] pseudoClasses;
-		public HInputLabel(string identifier, object value, params HStyle[] pseudoClasses) :
+		public HInputLabel(string labelFor, object value, params HStyle[] pseudoClasses) :
 			base("HInputLabel", "")
 		{
-			this.identifier = identifier;
+			this.labelFor = labelFor;
 			this.caption = value?.ToString() ?? "";
 			this.pseudoClasses = pseudoClasses;
 		}
@@ -34,26 +34,26 @@ namespace Commune.Html
 
 			HtmlHlp.AddMediaToCss(css, cssClassName, MediaExtensions);
 
-			HAttribute forAttr = new HAttribute("for", identifier);
+			HAttribute forAttr = new("for", labelFor);
 
 			return new HElement("label", HtmlHlp.ContentForHElement(this, cssClassName, forAttr, caption));
 		}
 	}
 
-	//public class HInputLabel : ExtensionContainer, IHtmlControl
+	//public class HInputLabel : ExtensionContainer, IHtmlControl, IEventEditExtension
 	//{
 	//	readonly IHtmlControl input;
 	//	readonly string caption;
 	//	readonly HStyle[] pseudoClasses;
-	//	public HInputLabel(IHtmlControl input, object value, params HStyle[] pseudoClasses) :
+	//	public HInputLabel(string caption, IHtmlControl input, params HStyle[] pseudoClasses) :
 	//		base("HInputLabel", "")
 	//	{
+	//		this.caption = caption;
 	//		this.input = input;
-	//		this.caption = value != null ? value.ToString() : "";
 	//		this.pseudoClasses = pseudoClasses;
 	//	}
 
-	//	static readonly HBuilder h = null;
+	//	static readonly HBuilder h = HBuilder.Extension;
 
 	//	public HElement ToHtml(string cssClassName, StringBuilder css)
 	//	{
@@ -67,9 +67,18 @@ namespace Commune.Html
 
 	//		HtmlHlp.AddMediaToCss(css, cssClassName, MediaExtensions);
 
-	//		HElement inputElement = input.ToHtml(input.Name, css);
+	//		List<object> elements = new()
+	//		{
+	//			input.ToHtml(input.Name, css),
+	//			caption
+	//		};
+	//		hdata? onevent = GetExtended("onevent") as hdata;
+	//		if (onevent != null)
+	//			elements.Add(onevent);
 
-	//		return new HElement("label", HtmlHlp.ContentForHElement(this, cssClassName, inputElement, caption));
+	//		//HElement inputElement = input.ToHtml(input.Name, css);
+
+	//		return new HElement("label", HtmlHlp.ContentForHElement(this, cssClassName, elements.ToArray()));
 	//	}
 	//}
 }

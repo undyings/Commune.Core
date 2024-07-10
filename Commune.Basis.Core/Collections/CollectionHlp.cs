@@ -9,6 +9,15 @@ namespace Commune.Basis
 {
 	public class CollectionHlp
 	{
+		//public static IEnumerable<T> Merge<T>(T? firstItem, IEnumerable<T> items)
+		//{
+		//	if (firstItem != null)
+		//		yield return firstItem;
+
+		//	foreach (T item in items)
+		//		yield return item;
+		//}
+
 		/// <summary>
 		/// оставляем для каждого ключа только первое вхождение
 		/// </summary>

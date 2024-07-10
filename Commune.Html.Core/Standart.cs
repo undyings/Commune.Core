@@ -159,7 +159,7 @@ namespace Commune.Html
     }
 
 
-    public static HPanel OperationWarning(WebOperation operation)
+    public static HPanel OperationWarning(WuiInitiator initiator, WebOperation operation)
     {
       string titleColor = "#FFF"; // "#F1F6CD";
       string titleBackground = "#880000"; // "#CC0000"; // "#597BA5";
@@ -176,7 +176,7 @@ namespace Commune.Html
               .FontFamily("FontAwesome").FontSize("1.15em"),
             new HHover().Opacity("1")
           ).FloatRight().MarginTop(-1).Color("#FFF").Opacity("0.6")
-            .Event("warning_hide", "", delegate (JsonData json)
+            .Event(initiator, "warning_hide", "", delegate (JsonData json)
             {
               operation.Reset();
             })

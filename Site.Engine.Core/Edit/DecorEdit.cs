@@ -66,7 +66,7 @@ namespace Site.Engine
 		//}
 
 
-		public static HPanel? AdminMainPanel(HttpContext httpContext, SiteSettings settings)
+		public static HPanel? AdminMainPanel(HttpContext httpContext, WuiInitiator initiator, SiteSettings settings)
     {
       string auth = httpContext.Get("auth");
 
@@ -83,7 +83,7 @@ namespace Site.Engine
           new HTextEdit("login", auth).MarginRight(10),
           new HPasswordEdit("password").MarginRight(10),
           std.Button("Войти").FontFamily("Arial").FontSize(14).LineHeight(14)
-            .Event("authorize", "authContent", delegate (JsonData json)
+            .Event(initiator, "authorize", "authContent", delegate (JsonData json)
             {
               string login = json.GetText("login");
               string password = json.GetText("password");
@@ -96,7 +96,7 @@ namespace Site.Engine
 
       return new HPanel(
         std.Button("Выйти").FontFamily("Arial").FontSize(14).LineHeight(14).MarginRight(20)
-          .Event("logout", "", delegate { httpContext.Logout(); }),
+          .Event(initiator, "logout", "", delegate { httpContext.Logout(); }),
         DecorEdit.RedoButton(editMode, "Предприятие", UrlHlp.EditUrl("contacts-column", null)),
         DecorEdit.RedoButton(editMode && ContentEdit.CatalogueSections.Length != 0,
           "Справочник", UrlHlp.EditUrl("catalogue", null)
@@ -365,19 +365,19 @@ namespace Site.Engine
       ).Align(true).MarginBottom(20);
     }
 
-    static IHtmlControl GetCloseButton(SiteState state, string color)
+    static IHtmlControl GetCloseButton(WuiInitiator initiator, SiteState state, string color)
     {
       return new HButton("", std.BeforeAwesome(@"\f00d", 0), new HHover().Color("#808080"))
         .FontSize(21).Color("#ccc").PaddingTop(17).PaddingRight(17)
         .Title("Закрыть")
-        .Event("auth_close", "", delegate
+        .Event(initiator, "auth_close", "", delegate
           {
             state.PopupHint = "";
           }
         );
     }
 
-    public static IHtmlControl? ShowDialog(SiteState state)
+    public static IHtmlControl? ShowDialog(WuiInitiator initiator, SiteState state)
     {
       if (StringHlp.IsEmpty(state.Operation.Message))
         return null;
@@ -394,7 +394,7 @@ namespace Site.Engine
       .Position("fixed").Margin("0 auto").Top(50).Left(0).Right(0) //.Left("50%").MarginLeft(-140).Top(50)
       .BoxShadow("0px 2px 10px 0px rgba(0, 0, 0, 0.5)")
       .OnClickWithStopPropagation()
-      .Event("dialog_close", "", delegate
+      .Event(initiator, "dialog_close", "", delegate
         {
           state.Operation.Reset();
         }
@@ -412,7 +412,7 @@ namespace Site.Engine
     //  );
     //}
 
-    public static IHtmlControl GetDialogPanel(SiteState state,
+    public static IHtmlControl GetDialogPanel(WuiInitiator initiator, SiteState state,
       string color, string background, DialogIcon iconKind, IHtmlControl dialogControl)
     {
       IHtmlControl? icon = GetDialogIcon(iconKind);
@@ -422,7 +422,7 @@ namespace Site.Engine
       return new HPanel(
         dialogControl,
         icon,
-        DecorEdit.GetCloseButton(state, color).Top("0").Right("0").PositionAbsolute()
+        DecorEdit.GetCloseButton(initiator, state, color).Top("0").Right("0").PositionAbsolute()
       ).Align(true).BoxSizing()
         .Color(color).Background(background);
     }

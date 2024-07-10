@@ -15,19 +15,25 @@ namespace Commune.Data
 	{
 		public static Tuple<string, int> LoadObjectMaxId(BoxDbContext dbContext)
 		{
-			int maxId = dbContext.Objects.Max(obj => obj.ObjectId);
+			int maxId = dbContext.Objects.Max(obj => (int?)obj.ObjectId) ?? 0;
+			//int maxId = dbContext.Objects.OrderByDescending(obj => obj.ObjectId).Select(obj => obj.ObjectId).Take(1).FirstOrDefault();
+			//hack Чтобы мета свойства объекта не наложились на захардкоренные свойства
+			if (maxId < 100000)
+				maxId = 100000;
 			return _.Tuple(BoxTableNames.ObjectTable, maxId);
 		}
 
 		public static Tuple<string, int> LoadPropertyMaxId(BoxDbContext dbContext)
 		{
-			int maxId = dbContext.Properties.Max(prop => prop.PropertyId);
+			int maxId = dbContext.Properties.Max(prop => (int?)prop.PropertyId) ?? 0;
+			//int maxId = dbContext.Properties.OrderByDescending(prop => prop.PropertyId).Select(prop => prop.PropertyId).Take(1).FirstOrDefault();
 			return _.Tuple(BoxTableNames.PropertyTable, maxId);
 		}
 
 		public static Tuple<string, int> LoadLinkMaxId(BoxDbContext dbContext)
 		{
-			int maxId = dbContext.Links.Max(link => link.LinkId);
+			int maxId = dbContext.Links.Max(link => (int?)link.LinkId) ?? 0;
+			//int maxId = dbContext.Links.OrderByDescending(link => link.LinkId).Select(link => link.LinkId).Take(1).FirstOrDefault();
 			return _.Tuple(BoxTableNames.LinkTable, maxId);
 		}
 
@@ -219,6 +225,16 @@ namespace Commune.Data
 		public readonly static FieldBlank<PropertyRow, float> FloatValue = new(0f,
 			property => ConvertHlp.ToFloat(property.PropertyValue) ?? 0,
 			(property, value) => property.PropertyValue = ConvertHlp.FromFloat(value)
+		);
+
+		public readonly static FieldBlank<PropertyRow, double?> DoubleNullableValue = new(null,
+			property => ConvertHlp.ToDouble(property.PropertyValue),
+			(property, value) => property.PropertyValue = ConvertHlp.FromDouble(value)
+		);
+
+		public readonly static FieldBlank<PropertyRow, double> DoubleValue = new(0,
+			property => ConvertHlp.ToDouble(property.PropertyValue) ?? 0,
+			(property, value) => property.PropertyValue = ConvertHlp.FromDouble(value)
 		);
 
 		public readonly static FieldBlank<PropertyRow, bool> BoolValue = new(false,

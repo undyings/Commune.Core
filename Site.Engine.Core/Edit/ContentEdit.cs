@@ -20,9 +20,9 @@ namespace Site.Engine
     public static Func<HttpContext, EditState, string, int?, int?, EnginePanelResult?>? GetCenterPanelExtension = null;
     public static DisplayName[] CatalogueSections = Array.Empty<DisplayName>();
 
-    public static Func<EditState, JsonData[], RequestData, HtmlResult<HElement>> HViewCreator(HttpContext httpContext)
+    public static Func<WuiInitiator, EditState, JsonData[], RequestData, HtmlResult<HElement>> HViewCreator(HttpContext httpContext)
     {
-      return delegate (EditState state, JsonData[] jsons, RequestData requestData)
+      return delegate (WuiInitiator initiator, EditState state, JsonData[] jsons, RequestData requestData)
       {
 				foreach (JsonData json in jsons)
 				{
@@ -33,13 +33,17 @@ namespace Site.Engine
 
 						state.Operation.Reset();
 
-						HElement cachePage = Page(httpContext, state);
+						WuiInitiator jsonInitiator = new(WuiCallKind.Json, json);
+						HElement cachePage = Page(httpContext, jsonInitiator, state);
 
-						hevent? eventh = cachePage.FindEvent(json, true);
-						if (eventh != null)
-						{
-							eventh.Execute(json);
-						}
+						if (jsonInitiator.FoundEvent != null)
+							jsonInitiator.FoundEvent(json);
+
+						//hevent? eventh = cachePage.FindEvent(json, true);
+						//if (eventh != null)
+						//{
+						//	eventh.Execute(json);
+						//}
 					}
 					catch (Exception ex)
 					{
@@ -48,7 +52,7 @@ namespace Site.Engine
 					}
 				}
 
-				var page = Page(httpContext, state);
+				var page = Page(httpContext, initiator, state);
 				return new HtmlResult<HElement>
 				{
 					Html = page,
@@ -60,7 +64,7 @@ namespace Site.Engine
 
     static readonly HBuilder h = HBuilder.Extension;
 
-    static IHtmlControl GetCenterPanel(HttpContext httpContext, EditState state,
+    static IHtmlControl GetCenterPanel(HttpContext httpContext, WuiInitiator initiator, EditState state,
       string kind, int? parentId, int? id, out string title)
     {
       title = "";
@@ -100,20 +104,20 @@ namespace Site.Engine
         //case "sorting_fabric":
         //  return EditHlp.GetSortingFabricEdit(state, parentId, out title);
         case "sorting_section":
-          return EditHlp.GetSortingSectionEdit(httpContext, state, parentId, out title);
+          return EditHlp.GetSortingSectionEdit(httpContext, initiator, state, parentId, out title);
         //case "sorting_unit":
         //  return EditHlp.GetSortingUnitEdit(state, parentId, out title);
         case "sorting_subunit":
-          return EditHlp.GetSortingSubunitEdit(httpContext, state, parentId, out title);
+          return EditHlp.GetSortingSubunitEdit(httpContext, initiator, state, parentId, out title);
         case "page":
           {
             string design = httpContext.Get("design");
-            return EditHlp.GetSectionEdit(httpContext, state, parentId, id, design, out title);
+            return EditHlp.GetSectionEdit(httpContext, initiator, state, parentId, id, design, out title);
           }
         case "unit":
           {
             string design = httpContext.Get("design");
-            return EditHlp.GetUnitEdit(httpContext, state, parentId, id, design, out title);
+            return EditHlp.GetUnitEdit(httpContext, initiator, state, parentId, id, design, out title);
           }
         //case "oplata-i-dostavka":
         //case "offers":
@@ -121,7 +125,7 @@ namespace Site.Engine
         //case "kontakty":
         //  return EditHlp.GetContactsViewEdit(httpContext, state, out title);
         case "contacts-column":
-          return EditHlp.GetContactsColumnEdit(httpContext, state, out title);
+          return EditHlp.GetContactsColumnEdit(httpContext, initiator, state, out title);
         case "catalogue":
           return EditHlp.GetCatalogueEdit(state, ContentEdit.CatalogueSections, out title);
         //case "kind-list":
@@ -147,7 +151,7 @@ namespace Site.Engine
       }
     }
 
-    static HElement Page(HttpContext httpContext, EditState state)
+    static HElement Page(HttpContext httpContext, WuiInitiator initiator, EditState state)
     {
       int? parentId = httpContext.GetUInt("parent");
       string kind = httpContext.Get("kind");
@@ -168,20 +172,20 @@ namespace Site.Engine
       }
       else
       {
-        editPanel = GetCenterPanel(httpContext, state, kind, parentId, id, out title);
+        editPanel = GetCenterPanel(httpContext, initiator, state, kind, parentId, id, out title);
       }
 
       HEventPanel mainPanel = new HEventPanel(
         new HPanel(
           editPanel.Background("white"),
-          EditElementHlp.GetOperationPopup(state.Operation)
+          EditElementHlp.GetOperationPopup(initiator, state.Operation)
           //std.OperationWarning(state.Operation)
         ).WidthLimit("", "800px").Margin("0 auto")
       ).Width("100%").Background("#fafef9");
 
       if (state.Operation.Status != null)
       {
-        mainPanel.OnClick(";").Event("main_popup_reset", "",
+        mainPanel.OnClick(";").Event(initiator, "main_popup_reset", "",
           delegate
           {
             state.Operation.Reset();

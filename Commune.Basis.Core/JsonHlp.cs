@@ -18,6 +18,26 @@ namespace Commune.Basis
 			IncludeFields = true, Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic) 
 		};
 
+		public static T SafeDeserialize<T>(string json) where T : new()
+		{
+			if (json == "")
+				return new T();
+
+			try
+			{
+				return JsonSerializer.Deserialize<T>(json, WithIncludeFields) ?? new T();
+			}
+			catch
+			{
+				return new T();
+			}
+		}
+
+		public static string Serialize<T>(T obj)
+		{
+			return JsonSerializer.Serialize(obj, typeof(T), WithIncludeFields);
+		}
+
 		public static T SafeLoad<T>(string path) where T : new()
 		{
 			try

@@ -23,7 +23,7 @@ namespace Site.Engine
       'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я'
     };
 
-    static IHtmlControl GetImageTile(EditState state, int objectId, string imageName, int index)
+    static IHtmlControl GetImageTile(WuiInitiator initiator, EditState state, int objectId, string imageName, int index)
     {
       int tileWidth = 164;
 
@@ -38,7 +38,7 @@ namespace Site.Engine
             new HPanel(
               new HButton("", std.BeforeAwesome(@"\f00c", 0)).Color(DecorEdit.iconColor)
                 .Title("Выбрать для перемещения")
-                .Event(string.Format("time_gallery_{0}", imageName), "",
+                .Event(initiator, string.Format("time_gallery_{0}", imageName), "",
                   delegate
                   {
                     state.MovableImageIndex = index;
@@ -48,7 +48,7 @@ namespace Site.Engine
             new HPanel(
               new HButton("", std.BeforeAwesome(@"\f05e", 0)).Color(DecorEdit.propertyMinorColor)
                 .Title("Отменить перемещение")
-                .Event("paste_cancel", "", delegate
+                .Event(initiator, "paste_cancel", "", delegate
                 {
                   state.MovableImageIndex = null;
                 },
@@ -58,7 +58,7 @@ namespace Site.Engine
             new HButton("", std.BeforeAwesome(@"\f00d", 0).Color("red"))
               .PositionAbsolute().Right(0).Top(0)
               .Title("Удалить").Hide(!state.AllowDeleteImage)
-              .Event(string.Format("delete_gallery_{0}", imageName), "",
+              .Event(initiator, string.Format("delete_gallery_{0}", imageName), "",
                 delegate (JsonData json)
                 {
                   string thumbPath = Path.Combine(BaseContext.Default.ImagesPath,
@@ -147,12 +147,12 @@ namespace Site.Engine
       return true;
     }
 
-    static IHtmlControl PasteBlock(EditState state, int galleryId, int index)
+    static IHtmlControl PasteBlock(WuiInitiator initiator, EditState state, int galleryId, int index)
     {
       return new HPanel(
         new HButton("", std.BeforeAwesome(@"\f0ea", 0)).Block().MarginTop(20).Color(DecorEdit.iconColor)
           .Title("Переместить изображение")
-          .Event("paste_image", "", delegate
+          .Event(initiator, "paste_image", "", delegate
             {
               MoveImage(galleryId, state.MovableImageIndex, index);
               state.MovableImageIndex = null;
@@ -162,7 +162,7 @@ namespace Site.Engine
       ).InlineBlock().MarginLeft(4).MarginRight(4);
     }
 
-    public static IHtmlControl GetGalleryPanel(EditState state, int galleryId, BaseTunes tunes)
+    public static IHtmlControl GetGalleryPanel(WuiInitiator initiator, EditState state, int galleryId, BaseTunes tunes)
     {
       int? movableImageIndex = state.MovableImageIndex;
       bool imageMovingStarted = movableImageIndex != null;
@@ -177,9 +177,9 @@ namespace Site.Engine
         bool isMovableImage = movableImageIndex == i || movableImageIndex == i - 1;
 
         if (imageMovingStarted && !isMovableImage)
-          tileControls.Add(PasteBlock(state, galleryId, i));
+          tileControls.Add(PasteBlock(initiator, state, galleryId, i));
 
-        IHtmlControl tileControl = GetImageTile(state, galleryId, imageName, i);
+        IHtmlControl tileControl = GetImageTile(initiator, state, galleryId, imageName, i);
         if (imageMovingStarted)
         {
           int margin = movableImageIndex == i ? 24 : 0;
@@ -189,7 +189,7 @@ namespace Site.Engine
       }
 
       if (imageMovingStarted && movableImageIndex != imageNames.Length - 1)
-        tileControls.Add(PasteBlock(state, galleryId, imageNames.Length));
+        tileControls.Add(PasteBlock(initiator, state, galleryId, imageNames.Length));
 
       return DecorEdit.FieldBlock(
         "Галерея изображений",
@@ -206,7 +206,7 @@ namespace Site.Engine
             ),
             std.Button(state.AllowDeleteImage ? "Запретить удаление" : "Разрешить удаление")
               .PositionAbsolute().Top(0).Right(10)
-              .Event("allow_delete_image", "", delegate
+              .Event(initiator, "allow_delete_image", "", delegate
                 {
                   bool allow = state.AllowDeleteImage;
                   state.AllowDeleteImage = !allow;

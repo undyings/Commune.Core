@@ -63,7 +63,7 @@ namespace Commune.Html
       {
         elements.Add(h.src(url));
 
-        hevent? onevent = GetExtended("onevent") as hevent;
+        hdata? onevent = GetExtended("onevent") as hdata;
         if (onevent != null)
           elements.Add(onevent);
       }

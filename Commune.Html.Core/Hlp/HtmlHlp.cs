@@ -191,12 +191,12 @@ if (window.upbuttonLaunch != true)
       return new TimeSpan(rawTimezone / 100, rawTimezone % 100, 0);
     }
 
-    public static IHtmlControl TimezoneScriptControl(Action<TimeSpan?> timezoneSetter)
+    public static IHtmlControl TimezoneScriptControl(WuiInitiator initiator, Action<TimeSpan?> timezoneSetter)
     {
       return new HPanel(
         new HTextEdit("timezone"),
         new HButton("timezone_btn", "timezone")
-          .Event("timezone_command", "timezone_content", delegate (JsonData json)
+          .Event(initiator, "timezone_command", "timezone_content", delegate (JsonData json)
           {
             string rawTimezone = json.GetText("timezone");
             TimeSpan? timezone = ParseTimezone(rawTimezone);
@@ -366,13 +366,17 @@ if (window.upbuttonLaunch != true)
     {
       HAttribute classAttr;
       {
-        string[] extraClassNames = (control.GetExtended("extraClassNames") as string[]) ?? new string[0];
-        string[] classNames = ArrayHlp.Merge(extraClassNames, new string[] { cssClassName });
-        classAttr = h.@class(classNames);
+        string[] extraClassNames = (control.GetExtended("extraClassNames") as string[]) ?? Array.Empty<string>();
+        if (extraClassNames.Length == 0)
+          classAttr = h.@class(cssClassName);
+        else
+        {
+          string[] classNames = ArrayHlp.Merge(extraClassNames, new string[] { cssClassName });
+          classAttr = h.@class(classNames);
+        }
       }
         
-      List<object> content = new List<object>();
-      content.Add(classAttr);
+      List<object> content = new() { classAttr };
       content.AddRange(coreAttrs);
       foreach (TagExtensionAttribute extension in control.TagExtensions)
         content.Add(new HAttribute(extension.Name, extension.Value));

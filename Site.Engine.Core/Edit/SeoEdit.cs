@@ -17,9 +17,9 @@ namespace Site.Engine
 {
   public class SeoEdit
   {
-		public static Func<EditState, JsonData[], RequestData, HtmlResult<HElement>> HViewCreator(HttpContext httpContext)
+		public static Func<WuiInitiator, EditState, JsonData[], RequestData, HtmlResult<HElement>> HViewCreator(HttpContext httpContext)
 		{
-			return delegate (EditState state, JsonData[] jsons, RequestData requestData)
+			return delegate (WuiInitiator initiator, EditState state, JsonData[] jsons, RequestData requestData)
 			{
 				foreach (JsonData json in jsons)
 				{
@@ -30,13 +30,17 @@ namespace Site.Engine
 
 						state.Operation.Reset();
 
-						HElement cachePage = Page(httpContext, state);
+            WuiInitiator jsonInitiator = new(WuiCallKind.Json, json);
+						HElement cachePage = Page(httpContext, jsonInitiator, state);
 
-						hevent? eventh = cachePage.FindEvent(json, true);
-						if (eventh != null)
-						{
-							eventh.Execute(json);
-						}
+            if (jsonInitiator.FoundEvent != null)
+              jsonInitiator.FoundEvent(json);
+
+						//hevent? eventh = cachePage.FindEvent(json, true);
+						//if (eventh != null)
+						//{
+						//	eventh.Execute(json);
+						//}
 					}
 					catch (Exception ex)
 					{
@@ -45,7 +49,7 @@ namespace Site.Engine
 					}
 				}
 
-				var page = Page(httpContext, state);
+				var page = Page(httpContext, initiator, state);
 				return new HtmlResult<HElement>
 				{
 					Html = page,
@@ -57,7 +61,7 @@ namespace Site.Engine
 
     static readonly HBuilder h = HBuilder.Extension;
 
-    static IHtmlControl GetCenterPanel(HttpContext httpContext, EditState state,
+    static IHtmlControl GetCenterPanel(HttpContext httpContext, WuiInitiator initiator, EditState state,
       string kind, int? parentId, int? id, out string title)
     {
       title = "";
@@ -67,27 +71,27 @@ namespace Site.Engine
         case "group":
         case "fabric":
         case "page":
-          return SeoEditorHlp.GetSEOObjectEdit(httpContext, state, kind, id, out title);
+          return SeoEditorHlp.GetSEOObjectEdit(httpContext, initiator, state, kind, id, out title);
         //case "landing":
         //  return SeoEditorHlp.GetLandingEdit(state, id, out title);
         //case "landing-list":
         //  return SeoEditorHlp.GetLandingListEdit(state, out title);
         case "seo-pattern":
-          return SeoEditorHlp.GetSEOPatternEdit(httpContext, state, out title);
+          return SeoEditorHlp.GetSEOPatternEdit(httpContext, initiator, state, out title);
         case "redirect":
-          return SeoEditorHlp.GetRedirectEdit(httpContext, state, id, out title);
+          return SeoEditorHlp.GetRedirectEdit(httpContext, initiator, state, id, out title);
         case "redirect-list":
           return SeoEditorHlp.GetRedirectListEdit(out title);
         case "widget":
-          return SeoEditorHlp.GetWidgetEdit(httpContext, state, id, out title);
+          return SeoEditorHlp.GetWidgetEdit(httpContext, initiator, state, id, out title);
         case "widget-list":
-          return SeoEditorHlp.GetWidgetListEdit(httpContext, state, out title);
+          return SeoEditorHlp.GetWidgetListEdit(httpContext, initiator, state, out title);
         default:
           return new HPanel();
       }
     }
 
-    static HElement Page(HttpContext httpContext, EditState state)
+    static HElement Page(HttpContext httpContext, WuiInitiator initiator, EditState state)
     {
       int? parentId = httpContext.GetUInt("parent");
       string kind = httpContext.Get("kind");
@@ -108,13 +112,13 @@ namespace Site.Engine
       }
       else
       {
-        editPanel = GetCenterPanel(httpContext, state, kind, parentId, id, out title);
+        editPanel = GetCenterPanel(httpContext, initiator, state, kind, parentId, id, out title);
       }
 
       IHtmlControl mainPanel = new HPanel(
         new HPanel(
           editPanel.Background("white"),
-          std.OperationWarning(state.Operation)
+          std.OperationWarning(initiator, state.Operation)
         ).WidthLimit("", "800px").Margin("0 auto")
       ).Width("100%").Background("#fafef9");
 

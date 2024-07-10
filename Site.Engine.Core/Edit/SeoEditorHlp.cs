@@ -30,7 +30,7 @@ namespace Site.Engine
       }
     }
 
-    public static IHtmlControl GetWidgetListEdit(HttpContext httpContext, EditState state, out string title)
+    public static IHtmlControl GetWidgetListEdit(HttpContext httpContext, WuiInitiator initiator, EditState state, out string title)
     {
       title = "SEO виджеты";
 
@@ -64,7 +64,7 @@ namespace Site.Engine
             ),
             new HPanel(
               std.Button("Сохранить robots.txt").MarginTop(10)
-                .Event("robots_save", "editRobots",
+                .Event(initiator, "robots_save", "editRobots",
                   delegate(JsonData json)
                   {
                     if (httpContext.IsInRole("nosave"))
@@ -86,7 +86,7 @@ namespace Site.Engine
       );
     }
 
-    public static IHtmlControl GetWidgetEdit(HttpContext httpContext, EditState state, int? widgetId, out string title)
+    public static IHtmlControl GetWidgetEdit(HttpContext httpContext, WuiInitiator initiator, EditState state, int? widgetId, out string title)
     {
 			if (widgetId == null)
         widgetId = state.CreatingObjectId;
@@ -109,13 +109,13 @@ namespace Site.Engine
           DecorEdit.FieldArea("Код виджета", 
             new HTextArea("code", widget?.Get(SEOWidgetType.Code) ?? "").Height("16em")
           ),
-          EditElementHlp.GetDeletePanel(httpContext, state, widgetId ?? -1, 
+          EditElementHlp.GetDeletePanel(httpContext, initiator, state, widgetId ?? -1, 
             "виджет", "Удаление виджета", null
           ).Hide(widget == null)
         ).Margin(0, 10).MarginBottom(20),
         EditElementHlp.GetButtonsPanel(
           (widget != null ? DecorEdit.SaveButton() : DecorEdit.AddButton("Добавить"))
-          .Event("save_widget", "editContent",
+          .Event(initiator, "save_widget", "editContent",
             delegate (JsonData json)
             {
               string editName = json.GetText("name");
@@ -227,7 +227,7 @@ namespace Site.Engine
       );
     }
 
-    public static IHtmlControl GetRedirectEdit(HttpContext httpContext, EditState state, int? redirectId, out string title)
+    public static IHtmlControl GetRedirectEdit(HttpContext httpContext, WuiInitiator initiator, EditState state, int? redirectId, out string title)
     {
       if (redirectId == null)
         redirectId = state.CreatingObjectId;
@@ -246,13 +246,13 @@ namespace Site.Engine
         new HPanel(
           DecorEdit.Field("Перенаправляемый адрес", "from", redirectLink != null ? redirectLink.Get(RedirectType.From).Name : ""),
           DecorEdit.Field("Перенаправить по адресу", "to", redirectLink != null ? redirectLink.Get(RedirectType.To) : ""),
-          EditElementHlp.GetDeletePanel(httpContext, state, redirectId ?? -1, 
+          EditElementHlp.GetDeletePanel(httpContext, initiator, state, redirectId ?? -1, 
             "перенаправление", "Удаление перенаправления", null
           ).Hide(redirectId == null)
         ).Margin(0, 10).MarginBottom(20),
         EditElementHlp.GetButtonsPanel(
           (redirectLink != null ? DecorEdit.SaveButton() : DecorEdit.AddButton("Добавить"))
-          .Event("save_deadlink", "editContent",
+          .Event(initiator, "save_deadlink", "editContent",
             delegate (JsonData json)
             {
               string editFrom = json.GetText("from").ToLower();
@@ -530,7 +530,7 @@ namespace Site.Engine
     //  );
     //}
 
-    public static IHtmlControl GetSEOObjectEdit(HttpContext httpContext, EditState state,
+    public static IHtmlControl GetSEOObjectEdit(HttpContext httpContext, WuiInitiator initiator, EditState state,
       string kind, int? id, out string title)
     {
       title = "Редактирование SEO полей страницы";
@@ -587,7 +587,7 @@ namespace Site.Engine
         ).Margin(0, 10).MarginBottom(20),
         EditElementHlp.GetButtonsPanel(
           DecorEdit.SaveButton()
-          .Event("save_seo", "editContent",
+          .Event(initiator, "save_seo", "editContent",
             delegate (JsonData json)
             {
               string editTitle = (json.GetText("title") ?? "").Trim();
@@ -648,7 +648,7 @@ namespace Site.Engine
       ).EditContainer("editContent");
     }
 
-    public static IHtmlControl GetSEOPatternEdit(HttpContext httpContext, EditState state, out string title)
+    public static IHtmlControl GetSEOPatternEdit(HttpContext httpContext, WuiInitiator initiator, EditState state, out string title)
     {
       bool isShop = false; // SiteContext.Default.Store is IShopStore;
 
@@ -719,7 +719,7 @@ namespace Site.Engine
         ).Margin(0, 10).MarginBottom(20),
         EditElementHlp.GetButtonsPanel(
           DecorEdit.SaveButton()
-          .Event("save_seo", "editContent",
+          .Event(initiator, "save_seo", "editContent",
             delegate (JsonData json)
             {
               if (httpContext.IsInRole("nosave"))

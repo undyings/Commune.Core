@@ -46,7 +46,7 @@ namespace Site.Engine
 			).Width("100%"); //.WidthLimit("", "0");
 		}
 
-    public static IHtmlControl GetSortingSectionEdit(HttpContext httpContext, EditState state, int? parentSectionId, out string title)
+    public static IHtmlControl GetSortingSectionEdit(HttpContext httpContext, WuiInitiator initiator, EditState state, int? parentSectionId, out string title)
     {
       title = "Сортировка разделов";
 
@@ -57,10 +57,10 @@ namespace Site.Engine
       string sortKind = parentSection.Get(SectionType.SortKind);
       string returnUrl = parentSection.IsMenu ? "/" : UrlHlp.ShopUrl("page", parentSectionId);
 
-      return SorterHlp.GetSortingEdit(httpContext, state, title, sortKind, parentSection.Subsections, returnUrl);
+      return SorterHlp.GetSortingEdit(httpContext, initiator, state, title, sortKind, parentSection.Subsections, returnUrl);
     }
 
-    public static IHtmlControl GetSortingSubunitEdit(HttpContext httpContext, EditState state, int? parentUnitId, out string title)
+    public static IHtmlControl GetSortingSubunitEdit(HttpContext httpContext, WuiInitiator initiator, EditState state, int? parentUnitId, out string title)
     {
       title = "Сортировка элементов";
 
@@ -73,10 +73,10 @@ namespace Site.Engine
       string returnUrl = UrlHlp.ReturnUnitUrl(parentSection, parentUnit.Id);
       string sortKind = parentUnit.Get(UnitType.SortKind);
 
-      return SorterHlp.GetSortingEdit(httpContext, state, title, sortKind, parentUnit.Subunits, returnUrl);
+      return SorterHlp.GetSortingEdit(httpContext, initiator, state, title, sortKind, parentUnit.Subunits, returnUrl);
     }
 
-    public static IHtmlControl GetUnitEdit(HttpContext httpContext,	EditState state, 
+    public static IHtmlControl GetUnitEdit(HttpContext httpContext, WuiInitiator initiator, EditState state, 
 			int? parentId, int? unitId, string fixedDesignKind, out string title)
     {
       EditorSelector selector = BaseContext.Default.UnitEditorSelector;
@@ -97,7 +97,7 @@ namespace Site.Engine
           return EditHlp.GetInfoMessage("Неверный аргумент запроса", "/");
 
         title = "Добавление раздела";
-        return UnitEditorHlp.GetUnitAdd(httpContext, selector, state, title, parent, fixedDesignKind);
+        return UnitEditorHlp.GetUnitAdd(httpContext, selector, initiator, state, title, parent, fixedDesignKind);
       }
 
       LightKin? unit = sections.FindUnit(unitId);
@@ -108,10 +108,10 @@ namespace Site.Engine
 
 			BaseTunes tunes = selector.FindTunes(designKind) ?? new UnitTunes(designKind, "");
 
-			return UnitEditorHlp.GetEditor(httpContext, state, unit, tunes);
+			return UnitEditorHlp.GetEditor(httpContext, initiator, state, unit, tunes);
     }
 
-    public static IHtmlControl GetSectionEdit(HttpContext httpContext, EditState state, 
+    public static IHtmlControl GetSectionEdit(HttpContext httpContext, WuiInitiator initiator, EditState state, 
 			int? parentId, int? sectionId, string fixedDesignKind, out string title)
     {
       EditorSelector selector = BaseContext.Default.SectionEditorSelector;
@@ -129,7 +129,7 @@ namespace Site.Engine
           return EditHlp.GetInfoMessage("Неверный аргумент запроса", "/");
 
         title = "Добавление раздела";
-        return SectionEditorHlp.GetSectionAdd(httpContext, selector, state, title, parent, fixedDesignKind);
+        return SectionEditorHlp.GetSectionAdd(httpContext, selector, initiator, state, title, parent, fixedDesignKind);
       }
 
       LightSection? section = sections.FindSection(sectionId);
@@ -140,12 +140,12 @@ namespace Site.Engine
 
 			BaseTunes? tunes = selector.FindTunes(designKind);
 			if (tunes == null)
-				return SectionEditorHlp.GetTextEdit(httpContext, state, section);
+				return SectionEditorHlp.GetTextEdit(httpContext, initiator, state, section);
 
-			return SectionEditorHlp.GetEditor(httpContext, state, section, tunes);
+			return SectionEditorHlp.GetEditor(httpContext, initiator, state, section, tunes);
     }
 
-		public static IHtmlControl GetContactsColumnEdit(HttpContext httpContext, EditState state, out string title)
+		public static IHtmlControl GetContactsColumnEdit(HttpContext httpContext, WuiInitiator initiator, EditState state, out string title)
 		{
 			title = "Редактирование информации о предприятии";
 
@@ -185,7 +185,7 @@ namespace Site.Engine
 				EditElementHlp.GetButtonsPanel(
 					DecorEdit.SaveButton()
 					.CKEditorOnUpdateAll()
-					.Event("save_article", "editContent",
+					.Event(initiator, "save_article", "editContent",
 						delegate (JsonData json)
 						{
 							string brand = json.GetText("brand");

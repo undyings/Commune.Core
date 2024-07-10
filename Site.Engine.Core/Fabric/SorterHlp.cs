@@ -22,16 +22,16 @@ namespace Site.Engine
       }
     }
 
-    public static IHtmlControl GetSortingEdit(HttpContext httpContext, EditState state,
+    public static IHtmlControl GetSortingEdit(HttpContext httpContext, WuiInitiator initiator, EditState state,
       string title, string sortKind, LightObject[] items, string returnUrl)
     {
       if (sortKind == "desc")
-        return GetTimeDescSortingEdit(httpContext, state, title, items, returnUrl);
+        return GetTimeDescSortingEdit(httpContext, initiator, state, title, items, returnUrl);
 
-      return GetAlhabetSortingEdit(httpContext, state, title, items, returnUrl);
+      return GetAlhabetSortingEdit(httpContext, initiator, state, title, items, returnUrl);
     }
 
-    public static IHtmlControl GetAlhabetSortingEdit(HttpContext httpContext, EditState state,
+    public static IHtmlControl GetAlhabetSortingEdit(HttpContext httpContext, WuiInitiator initiator, EditState state,
       string title, LightObject[] items, string returnUrl)
     {
       int[] itemIds = ArrayHlp.Convert(items,
@@ -63,7 +63,7 @@ namespace Site.Engine
         ).Margin(0, 10).MarginBottom(20),
         EditElementHlp.GetButtonsPanel(
           DecorEdit.SaveButton()
-          .Event("save_sorting", "editContent",
+          .Event(initiator, "save_sorting", "editContent",
             delegate (JsonData json)
             {
               if (httpContext.IsInRole("nosave"))
@@ -95,7 +95,7 @@ namespace Site.Engine
       ).EditContainer("editContent");
     }
 
-    static IHtmlControl GetTimeDescSortingEdit(HttpContext httpContext, EditState state,
+    static IHtmlControl GetTimeDescSortingEdit(HttpContext httpContext, WuiInitiator initiator, EditState state,
       string title, LightObject[] items, string returnUrl)
     {
       int[] itemIds = ArrayHlp.Convert(items,
@@ -123,7 +123,7 @@ namespace Site.Engine
         ).Margin(0, 10).MarginBottom(20),
         EditElementHlp.GetButtonsPanel(
           DecorEdit.SaveButton()
-          .Event("save_sorting", "editContent",
+          .Event(initiator, "save_sorting", "editContent",
             delegate (JsonData json)
             {
               if (httpContext.IsInRole("nosave"))

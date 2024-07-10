@@ -46,12 +46,12 @@ namespace Commune.Html
       {
         elements.Add(caption);
 
-        hevent? onevent = GetExtended("onevent") as hevent;
+        hdata? onevent = GetExtended("onevent") as hdata;
         if (onevent != null)
           elements.Add(onevent);
       }
 
-      return new HEventElement("div", HtmlHlp.ContentForHElement(this, cssClassName, elements.ToArray())
+      return new HElement("div", HtmlHlp.ContentForHElement(this, cssClassName, elements.ToArray())
       );
 
       //return h.Div(HtmlHlp.ContentForHElement(this, cssClassName, elements.ToArray())

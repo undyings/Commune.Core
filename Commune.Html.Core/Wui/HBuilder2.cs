@@ -8,55 +8,55 @@ namespace NitroBolt.Wui
 {
   public static class HBuilderHelper2
   {
-    public static IEnumerable<HElement> RoundPage(HElement page)
-    {
-      yield return page;
-      foreach (HElement node in page.Elements())
-      {
-        foreach (HElement element in RoundPage(node))
-          yield return element;
-      }
-    }
+    //public static IEnumerable<HElement> RoundPage(HElement page)
+    //{
+    //  yield return page;
+    //  foreach (HElement node in page.Elements())
+    //  {
+    //    foreach (HElement element in RoundPage(node))
+    //      yield return element;
+    //  }
+    //}
 
-    /// <summary>
-    /// Вызываем при обработке команд json
-    /// </summary>
-    /// <param name="page"></param>
-    /// <param name="json"></param>
-    /// <param name="isStrongBinding"></param>
-    /// <returns></returns>
-    public static hevent? FindEvent(this HElement page, JsonData json, bool isStrongBinding)
-    {
-      foreach (HElement element in RoundPage(page))
-      {
-        HEventElement? eventElement = element as HEventElement;
-        if (eventElement == null || eventElement.handler == null)
-          continue;
+    ///// <summary>
+    ///// Вызываем при обработке команд json
+    ///// </summary>
+    ///// <param name="page"></param>
+    ///// <param name="json"></param>
+    ///// <param name="isStrongBinding"></param>
+    ///// <returns></returns>
+    //public static hevent? FindEvent(this HElement page, JsonData json, bool isStrongBinding)
+    //{
+    //  foreach (HElement element in RoundPage(page))
+    //  {
+    //    HEventElement? eventElement = element as HEventElement;
+    //    if (eventElement == null || eventElement.handler == null)
+    //      continue;
 
-        if (IsEventElement(json, eventElement.handler, isStrongBinding))
-          return eventElement.handler;
-      }
-      return null;
-    }
+    //    if (IsEventElement(json, eventElement.handler, isStrongBinding))
+    //      return eventElement.handler;
+    //  }
+    //  return null;
+    //}
 
-    public static bool IsEventElement(JsonData json, hevent handler, bool isStrongBinding)
-    {
-      foreach (HAttribute id in handler)
-      {
-        object jsonId = json.JPath(id.Name.LocalName.Split(new char[] { '-' }, StringSplitOptions.RemoveEmptyEntries));
+    //public static bool IsEventElement(JsonData json, hevent handler, bool isStrongBinding)
+    //{
+    //  foreach (HAttribute id in handler)
+    //  {
+    //    object jsonId = json.JPath(id.Name.LocalName.Split(new char[] { '-' }, StringSplitOptions.RemoveEmptyEntries));
 
-        //Logger.AddMessage("IsEventElement: {0}, {1}", id, jsonId);
-        if (jsonId == null)
-          return false;
+    //    //Logger.AddMessage("IsEventElement: {0}, {1}", id, jsonId);
+    //    if (jsonId == null)
+    //      return false;
 
-        if (isStrongBinding)
-        {
-          if (StringHlp.ToString(id.Value) != StringHlp.ToString(jsonId))
-            return false;
-        }
-      }
-      return true;
-    }
+    //    if (isStrongBinding)
+    //    {
+    //      if (StringHlp.ToString(id.Value) != StringHlp.ToString(jsonId))
+    //        return false;
+    //    }
+    //  }
+    //  return true;
+    //}
 
     public static HElement LinkCss(this HBuilder h, string cssUrl)
     {

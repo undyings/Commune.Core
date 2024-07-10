@@ -58,7 +58,7 @@ namespace Site.Engine
     }
 
     public static IHtmlControl GetUnitAdd(HttpContext httpContext, EditorSelector selector,
-      EditState state, string title, LightKin parent, string fixedDesignKind)
+      WuiInitiator initiator, EditState state, string title, LightKin parent, string fixedDesignKind)
     {
       LightSection? parentSection = parent is LightSection ? (LightSection)parent :
         FabricHlp.ParentSectionForUnit(store.Sections, parent);
@@ -84,7 +84,7 @@ namespace Site.Engine
           )
         ).Margin(0, 10).MarginBottom(20),
         EditElementHlp.GetButtonsPanel(
-          DecorEdit.AddButton("Добавить").Event("add_unit", "addContent",
+          DecorEdit.AddButton("Добавить").Event(initiator, "add_unit", "addContent",
             delegate (JsonData json)
             {
               string unitName = json.GetText("name");
@@ -146,7 +146,7 @@ namespace Site.Engine
       ).EditContainer("addContent");
     }
 
-    public static IHtmlControl GetEditor(HttpContext httpContext, EditState state, LightKin unit, BaseTunes tunes)
+    public static IHtmlControl GetEditor(HttpContext httpContext, WuiInitiator initiator, EditState state, LightKin unit, BaseTunes tunes)
     {
       bool hideTile = !tunes.GetTune("Tile");
       bool hideSortTime = !tunes.GetTune("SortTime");
@@ -163,7 +163,7 @@ namespace Site.Engine
       bool hideSubunits = !tunes.GetTune("Subunits");
       bool hideSortKind = !tunes.GetTune("SortKind");
 
-      Log.Information("GetEditor: {0}, {1}, {2}", tunes.DesignKind, hideAnnotation, hideContent);
+      //Log.Information("GetEditor: {0}, {1}, {2}", tunes.DesignKind, hideAnnotation, hideContent);
 
 			LightSection? parentSection = FabricHlp.ParentSectionForUnit(store.Sections, unit);
       string returnUrl = UrlHlp.ReturnUnitUrl(parentSection, unit.Id);
@@ -171,16 +171,16 @@ namespace Site.Engine
 
       return new HPanel(
         DecorEdit.Title("Редактирование элемента страницы"),
-        GetDeletePanel(httpContext, state, unit),
+        GetDeletePanel(httpContext, initiator, state, unit),
         new HPanel(
           DecorEdit.Field("Заголовок элемента", "title", unit.Get(UnitType.JsonId).Name)
             .MarginLeft(5),
 					DecorEdit.Field("Адаптивный заголовок", "adaptTitle", unit.Get(UnitType.AdaptTitle))
 						.MarginLeft(5).Hide(hideAdaptTitle),
 					new HPanel(
-						EditElementHlp.GetImageThumb(unit.Id, tunes).InlineBlock().MarginRight(20)
+						EditElementHlp.GetImageThumb(initiator, unit.Id, tunes).InlineBlock().MarginRight(20)
 							.Hide(hideTile),
-						EditElementHlp.GetAdaptImage(unit.Id).InlineBlock()
+						EditElementHlp.GetAdaptImage(initiator, unit.Id).InlineBlock()
 							.Hide(hideAdaptImage)
 					).MarginLeft(5),
           DecorEdit.FieldArea("Альтернативный текст для картинки",
@@ -207,15 +207,15 @@ namespace Site.Engine
               HtmlHlp.CKEditorCreate("content", unit.Get(UnitType.Content),
                 "400px", true)
             ),
-            EditElementHlp.GetDescriptionImagesPanel(state, unit.Id)
+            EditElementHlp.GetDescriptionImagesPanel(initiator, state, unit.Id)
           ).Hide(hideContent),
-          GalleryEditorHlp.GetGalleryPanel(state, unit.Id, tunes)
+          GalleryEditorHlp.GetGalleryPanel(initiator, state, unit.Id, tunes)
             .Hide(hideGallery)
         ).Margin(0, 10),
         EditElementHlp.GetButtonsPanel(
           DecorEdit.SaveButton()
           .CKEditorOnUpdateAll()
-          .Event("save_unit", "editContent",
+          .Event(initiator, "save_unit", "editContent",
             delegate (JsonData json)
             {
               string title = json.GetText("title");
@@ -289,9 +289,9 @@ namespace Site.Engine
       ).EditContainer("editContent");
     }
 
-    static IHtmlControl GetDeletePanel(HttpContext httpContext, EditState state, LightKin unit)
+    static IHtmlControl GetDeletePanel(HttpContext httpContext, WuiInitiator initiator, EditState state, LightKin unit)
     {
-      return EditElementHlp.GetDeletePanel(httpContext, state, unit.Id, "", "Удаление элемента страницы",
+      return EditElementHlp.GetDeletePanel(httpContext, initiator, state, unit.Id, "", "Удаление элемента страницы",
         delegate
         {
           return true;

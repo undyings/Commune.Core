@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using NitroBolt.Wui;
 using Commune.Basis;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace Commune.Html
 {
@@ -65,27 +66,44 @@ namespace Commune.Html
       return control;
     }
 
-    public static T Event<T>(this T control, hevent onevent) where T : IEventEditExtension
-    {
-      control.WithExtension(new ExtensionAttribute("onevent", onevent));
-      return control;
-    }
+    //public static T Event<T>(this T control, hevent onevent) where T : IEventEditExtension
+    //{
+    //  control.WithExtension(new ExtensionAttribute("onevent", onevent));
+    //  return control;
+    //}
 
-    public static T Event<T>(this T control, string command, string editContainer, 
+    public static T Event<T>(this T control, WuiInitiator initiator, string command, string editContainer, 
       Action<JsonData> eventHandler, params object[] extraIds) where T : IEventEditExtension
     {
-      hevent onevent = InnerEvent(command, editContainer, eventHandler, extraIds);
+      hdata onevent = InnerEvent(command, editContainer, extraIds);
 
-      return Event(control, onevent);
+      if (initiator.CallKind == WuiCallKind.Json && initiator.Json != null && initiator.FoundEvent == null)
+      {
+        if (IsFoundEvent(onevent, initiator.Json))
+					initiator.FoundEvent = eventHandler;
+      }
+
+			control.WithExtension(new ExtensionAttribute("onevent", onevent));
+			return control;
     }
 
-    public static hevent InnerEvent(string command, string editContainer,
-      Action<JsonData> eventHandler, params object[] extraIds)
+    static bool IsFoundEvent(hdata onevent, JsonData json)
     {
-      hevent onevent = new hevent(delegate (object[] ids, JsonData json)
-      {
-        eventHandler(json);
-      }) { { "command", command } };
+			foreach (HAttribute id in onevent)
+			{
+				object jsonId = json.JPath(id.Name.LocalName.Split(new char[] { '-' }, StringSplitOptions.RemoveEmptyEntries));
+        if (jsonId == null)
+          return false;
+
+        if (StringHlp.ToString(id.Value) != StringHlp.ToString(jsonId))
+          return false;
+			}
+      return true;
+		}
+
+		static hdata InnerEvent(string command, string editContainer, params object[] extraIds)
+    {
+      hdata onevent = new() { { "command", command } };
 
       if (!StringHlp.IsEmpty(editContainer))
         onevent.Add("container", editContainer);
@@ -99,6 +117,27 @@ namespace Commune.Html
 
       return onevent;
     }
+
+    //public static hevent InnerEvent(string command, string editContainer,
+    //  Action<JsonData> eventHandler, params object[] extraIds)
+    //{
+    //  hevent onevent = new hevent(delegate (object[] ids, JsonData json)
+    //  {
+    //    eventHandler(json);
+    //  }) { { "command", command } };
+
+    //  if (!StringHlp.IsEmpty(editContainer))
+    //    onevent.Add("container", editContainer);
+
+    //  int i = -1;
+    //  foreach (object id in extraIds)
+    //  {
+    //    ++i;
+    //    onevent.Add(string.Format("id{0}", i + 1), id);
+    //  }
+
+    //  return onevent;
+    //}
 
     public static T ExtraClassNames<T>(this T control, params string[] classNames) where T : IEditExtension
     {

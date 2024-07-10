@@ -15,7 +15,7 @@ namespace Site.Engine
 		public static bool AddFolderForNews = false;
 	}
 
-	public interface IState : IWuiState
+	public interface IState
 	{
 		DateTime AccessTime { get; set; }
 		bool EditMode { get; set; }

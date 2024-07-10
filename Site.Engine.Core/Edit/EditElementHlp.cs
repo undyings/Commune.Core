@@ -30,12 +30,12 @@ namespace Site.Engine
 		}
 
 
-		public static IHtmlControl GetDeletePanel(HttpContext httpContext, EditState state, int objectId,
+		public static IHtmlControl GetDeletePanel(HttpContext httpContext, WuiInitiator initiator, EditState state, int objectId,
       string objectKind, string dialogTitle,
       Func<bool>? actionEnabler)
     {
       string popupDialog = string.Format("delete_{0}", objectId);
-      return GetActionPanel(httpContext, state, popupDialog, "Удалить", objectKind, dialogTitle, actionEnabler,
+      return GetActionPanel(httpContext, initiator, state, popupDialog, "Удалить", objectKind, dialogTitle, actionEnabler,
         delegate
         {
           using BoxDbContext dbContext = fabricConnection.Create();
@@ -53,19 +53,19 @@ namespace Site.Engine
       );
     }
 
-    public static IHtmlControl GetActionPanel(HttpContext httpContext, EditState state, string popupDialog, 
+    public static IHtmlControl GetActionPanel(HttpContext httpContext, WuiInitiator initiator, EditState state, string popupDialog, 
       string actionDisplay, string objectKind, string dialogTitle,
       Func<bool>? actionEnabler, Action action)
     {
       return new HPanel(
         std.Button(string.Format("{0} {1}", actionDisplay, objectKind))
-        .Event("action_object", "",
+        .Event(initiator, "action_object", "",
           delegate (JsonData json)
           {
             state.PopupDialog = popupDialog;
           }
         ),
-        EditElementHlp.GetPopupDialog(state, dialogTitle,
+        EditElementHlp.GetPopupDialog(initiator, state, dialogTitle,
           string.Format("Вы уверены, что хотите {0} {1}?", actionDisplay.ToLower(), objectKind), actionDisplay,
           delegate
           {
@@ -87,7 +87,7 @@ namespace Site.Engine
       ).Align(false).Margin(5, 10);
     }
 
-    public static IHtmlControl GetPopupDialog(EditState state, 
+    public static IHtmlControl GetPopupDialog(WuiInitiator initiator, EditState state, 
       string title, string question, string actionCaption, Action action)
     {
       return new HPanel(
@@ -96,14 +96,14 @@ namespace Site.Engine
         new HPanel(
           std.Button(actionCaption, 4, 18, new HHover().Background("#C51A3C").Color("#fff"))
             .MarginRight(24)
-            .Event("dialog_action", "", delegate { action(); }),
-          std.Button("Отмена", 4, 18).Event("dialog_cancel", "", delegate { state.PopupDialog = ""; })
+            .Event(initiator, "dialog_action", "", delegate { action(); }),
+          std.Button("Отмена", 4, 18).Event(initiator, "dialog_cancel", "", delegate { state.PopupDialog = ""; })
         ).Align(null).MarginTop(14),
         new HButton("",
           std.AfterAwesome(@"\f00d", 0).FontSize("1.5em"),
           new HHover().Color("#C51A3C")
         ).PositionAbsolute().Right("10px").Top("10px").Color("#dedede")
-        .Event("dialog_close", "", delegate { state.PopupDialog = ""; })
+        .Event(initiator, "dialog_close", "", delegate { state.PopupDialog = ""; })
       ).Width(290).Align(true)
       .FontSize(14).LineHeight(18)
       .Background("#ffffff")
@@ -358,17 +358,17 @@ namespace Site.Engine
     //  );
     //}
 
-    public static IHtmlControl GetImageThumb(int objectId)
+    public static IHtmlControl GetImageThumb(WuiInitiator initiator, int objectId)
     {
-      return GetImageThumb(objectId, null);
+      return GetImageThumb(initiator, objectId, null);
     }
 
-		public static IHtmlControl GetImageThumb(int objectId, TuneContainer<bool>? tunes)
+		public static IHtmlControl GetImageThumb(WuiInitiator initiator, int objectId, TuneContainer<bool>? tunes)
 		{
-			return GetImageThumb(objectId, "", tunes);
+			return GetImageThumb(initiator, objectId, "", tunes);
 		}
 
-    public static IHtmlControl GetImageThumb(int objectId, string subfolder, TuneContainer<bool>? tunes)
+    public static IHtmlControl GetImageThumb(WuiInitiator initiator, int objectId, string subfolder, TuneContainer<bool>? tunes)
     {
 			List<HAttribute> attributes = new List<HAttribute>();
 
@@ -398,9 +398,9 @@ namespace Site.Engine
 						"no-repeat", "center"
 					).BackgroundSize("contain"),
         new HPanel(
-          std.Button("Обновить изображение").Event("refresh_thumb", "", delegate { }).MarginBottom(10),
+          std.Button("Обновить изображение").Event(initiator, "refresh_thumb", "", delegate { }).MarginBottom(10),
           new HPanel(),
-          std.Button("Удалить изображение").Event("delete_thumb", "",
+          std.Button("Удалить изображение").Event(initiator, "delete_thumb", "",
             delegate
             {
               File.Delete(UrlHlp.ImagePath(objectId.ToString(), subfolder, "original.jpg"));
@@ -412,7 +412,7 @@ namespace Site.Engine
       );
     }
 
-		public static IHtmlControl GetAdaptImage(int objectId)
+		public static IHtmlControl GetAdaptImage(WuiInitiator initiator, int objectId)
 		{
 			string size = string.Format("{0}px", thumbWidth);
 			return new HPanel(
@@ -420,9 +420,9 @@ namespace Site.Engine
 				).InlineBlock().Size(thumbWidth, thumbWidth)
 					.Background(UrlHlp.ImageUrl(objectId, "adapt.jpg"), "no-repeat", "center").BackgroundSize("contain"),
 				new HPanel(
-					std.Button("Обновить изображение").Event("refresh_adapt", "", delegate { }).MarginBottom(10),
+					std.Button("Обновить изображение").Event(initiator, "refresh_adapt", "", delegate { }).MarginBottom(10),
 					new HPanel(),
-					std.Button("Удалить изображение").Event("delete_adapt", "",
+					std.Button("Удалить изображение").Event(initiator, "delete_adapt", "",
 						delegate
 						{
 							File.Delete(UrlHlp.ImagePath(objectId.ToString(), "adapt.jpg"));
@@ -435,7 +435,7 @@ namespace Site.Engine
 			);
 		}
 
-		public static IHtmlControl GetImageTile(int objectId, string subfolder, 
+		public static IHtmlControl GetImageTile(WuiInitiator initiator, int objectId, string subfolder, 
 			string imageName, int index, bool allowDeletion)
     {
 			//string imageUrl = string.Format("/images/{0}/{1}", objectId, imageName);
@@ -446,7 +446,7 @@ namespace Site.Engine
 					new HLink(imageUrl, "Ссылка"),
 					new HButton("", std.BeforeAwesome(@"\f00d", 0).Color("red")).Hide(!allowDeletion)
 						.PositionAbsolute().Right(2).Top(0).Title("Удалить изображение")
-						.Event(string.Format("delete_{0}", imageName), "",
+						.Event(initiator, string.Format("delete_{0}", imageName), "",
 							delegate (JsonData json)
 							{
 								string imagePath = UrlHlp.ImagePath(objectId.ToString(), subfolder, imageName);
@@ -489,21 +489,21 @@ namespace Site.Engine
         .Background("#fafafa").LinearGradient("to top", "#fafafa", "#ddd").FontSize("1.25em");
     }
 
-		public static IHtmlControl GetDescriptionImagesPanel(EditState state, int objectId)
+		public static IHtmlControl GetDescriptionImagesPanel(WuiInitiator initiator, EditState state, int objectId)
 		{
-			return GetDescriptionImagesPanel(state, objectId, "");
+			return GetDescriptionImagesPanel(initiator, state, objectId, "");
 		}
 
-    public static IHtmlControl GetDescriptionImagesPanel(EditState state, int objectId, string subfolder)
+    public static IHtmlControl GetDescriptionImagesPanel(WuiInitiator initiator, EditState state, int objectId, string subfolder)
     {
 			bool allow = state.AllowImageDeletion;
 
-			List<IHtmlControl> tileControls = new List<IHtmlControl>();
+			List<IHtmlControl> tileControls = new();
       int i = -1;
       foreach (string imageName in FabricHlp.GetImageNamesForDescription(objectId, subfolder))
       {
         ++i;
-        IHtmlControl tileControl = GetImageTile(objectId, subfolder, imageName, i, allow);
+        IHtmlControl tileControl = GetImageTile(initiator, objectId, subfolder, imageName, i, allow);
         tileControls.Add(tileControl);
       }
 
@@ -526,7 +526,7 @@ namespace Site.Engine
 					new HButton("", std.BeforeAwesome(@"\f1e2", 0)).Title("Разрешить удаление изображений")
 						.Color(allow ? "red" : DecorEdit.propertyColor)
 						.PositionAbsolute().Top(5).Right(5)
-						.Event("images_delete", "", delegate
+						.Event(initiator, "images_delete", "", delegate
 							{
 								bool editAllow = state.AllowImageDeletion;
 								state.AllowImageDeletion = !editAllow;
@@ -537,7 +537,7 @@ namespace Site.Engine
       ).PositionRelative();
     }
 
-    public static IHtmlControl? GetOperationPopup(WebOperation operation)
+    public static IHtmlControl? GetOperationPopup(WuiInitiator initiator, WebOperation operation)
     {
       if (StringHlp.IsEmpty(operation.Message))
         return null;
@@ -550,7 +550,7 @@ namespace Site.Engine
           std.AfterAwesome(@"\f00d", 0).FontSize("1.5em"),
           new HHover().Color("#C51A3C")
         ).PositionAbsolute().Right("10px").Top("10px").Color("#dedede")
-        .Event("operation_reset", "", delegate
+        .Event(initiator, "operation_reset", "", delegate
           {
             operation.Reset();
           }

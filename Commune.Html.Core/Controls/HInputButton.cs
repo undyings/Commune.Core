@@ -32,7 +32,7 @@ namespace Commune.Html
       elements.Add(h.type("button"));
       elements.Add(h.value(caption));
 
-      hevent? onevent = GetExtended("onevent") as hevent;
+      hdata? onevent = GetExtended("onevent") as hdata;
       if (onevent != null)
         elements.Add(onevent);
 
@@ -40,7 +40,7 @@ namespace Commune.Html
       defaults.OnClick(";");
       defaults.Cursor(CursorStyle.Pointer);
 
-      return new HEventElement("input", HtmlHlp.ContentForHElement(this, cssClassName, elements.ToArray())
+      return new HElement("input", HtmlHlp.ContentForHElement(this, cssClassName, elements.ToArray())
       );
 
       //return h.Input(HtmlHlp.ContentForHElement(this, cssClassName, elements.ToArray())

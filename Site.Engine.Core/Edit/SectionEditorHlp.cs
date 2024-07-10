@@ -21,7 +21,7 @@ namespace Site.Engine
     }
 
     public static IHtmlControl GetSectionAdd(HttpContext httpContext, EditorSelector selector,
-      EditState state, string title, LightSection parent, string fixedDesignKind)
+			 WuiInitiator initiator, EditState state, string title, LightSection parent, string fixedDesignKind)
     {
       string returnUrl = parent.IsMenu ? "/" : UrlHlp.ShopUrl("page", parent.Id);
 
@@ -45,7 +45,7 @@ namespace Site.Engine
           DecorEdit.Field("Заголовок раздела", "name", "")
         ).Margin(0, 10).MarginBottom(20),
         EditElementHlp.GetButtonsPanel(
-          DecorEdit.AddButton("Добавить").Event("add_section", "addContent",
+          DecorEdit.AddButton("Добавить").Event(initiator, "add_section", "addContent",
             delegate (JsonData json)
             {
               string sectionName = json.GetText("name");
@@ -142,7 +142,7 @@ namespace Site.Engine
     //  ).Align(false).Padding(5, 10);
     //}
 
-    public static IHtmlControl GetEditor(HttpContext httpContext, EditState state, LightKin section, BaseTunes tunes)
+    public static IHtmlControl GetEditor(HttpContext httpContext, WuiInitiator initiator, EditState state, LightKin section, BaseTunes tunes)
     {
       bool hideTile = !tunes.GetTune("Tile");
       bool hideSortKind = !tunes.GetTune("SortKind");
@@ -162,7 +162,7 @@ namespace Site.Engine
 
       return new HPanel(
         DecorEdit.Title("Редактирование страницы"),
-        EditElementHlp.GetDeletePanel(httpContext, state, section.Id, "раздел", "Удаление раздела",
+        EditElementHlp.GetDeletePanel(httpContext, initiator, state, section.Id, "раздел", "Удаление раздела",
           delegate
           {
             if (section is LightSection && ((LightSection)section).Subsections.Length > 0)
@@ -177,7 +177,7 @@ namespace Site.Engine
         new HPanel(
           DecorEdit.Field("Заголовок страницы", "title", section.Get(SectionType.Title).Name)
             .MarginLeft(5),
-          EditElementHlp.GetImageThumb(section.Id, tunes).Hide(hideTile).MarginLeft(5),
+          EditElementHlp.GetImageThumb(initiator, section.Id, tunes).Hide(hideTile).MarginLeft(5),
           DecorEdit.Field(
             new HLabel("Cортировка подразделов").FontBold(),
             SorterHlp.SortKindCombo("sortKind", section.Get(SectionType.SortKind))
@@ -215,13 +215,13 @@ namespace Site.Engine
               HtmlHlp.CKEditorCreate("content", section.Get(SectionType.Content),
                 "400px", true)
             ),
-            EditElementHlp.GetDescriptionImagesPanel(state, section.Id)
+            EditElementHlp.GetDescriptionImagesPanel(initiator, state, section.Id)
           ).Hide(hideContent)
         ).Margin(0, 10),
         EditElementHlp.GetButtonsPanel(
           DecorEdit.SaveButton()
           .CKEditorOnUpdateAll()
-          .Event("save_section", "editContent",
+          .Event(initiator, "save_section", "editContent",
             delegate (JsonData json)
             {
               string title = json.GetText("title");
@@ -418,13 +418,13 @@ namespace Site.Engine
     //  ).EditContainer("editContent");
     //}
 
-    public static IHtmlControl GetTextEdit(HttpContext httpContext, EditState state, LightKin section)
+    public static IHtmlControl GetTextEdit(HttpContext httpContext, WuiInitiator initiator, EditState state, LightKin section)
     {
       string returnUrl = UrlHlp.ShopUrl("page", section.Id);
 
       return new HPanel(
         DecorEdit.Title("Редактирование страницы"),
-        EditElementHlp.GetDeletePanel(httpContext, state, section.Id, "раздел", "Удаление раздела",
+        EditElementHlp.GetDeletePanel(httpContext, initiator, state, section.Id, "раздел", "Удаление раздела",
           delegate
           {
             if (section is LightSection && ((LightSection)section).Subsections.Length > 0)
@@ -446,12 +446,12 @@ namespace Site.Engine
             HtmlHlp.CKEditorCreate("content", section.Get(SectionType.Content),
               "400px", true)
           ),
-          EditElementHlp.GetDescriptionImagesPanel(state, section.Id)
+          EditElementHlp.GetDescriptionImagesPanel(initiator, state, section.Id)
         ).Margin(0, 10),
         EditElementHlp.GetButtonsPanel(
           DecorEdit.SaveButton()
           .CKEditorOnUpdateAll()
-          .Event("save_section", "editContent",
+          .Event(initiator, "save_section", "editContent",
             delegate (JsonData json)
             {
               string title = json.GetText("title");
@@ -500,7 +500,7 @@ namespace Site.Engine
     }
 
     [Obsolete]
-    public static IHtmlControl GetContactEdit(HttpContext httpContext, EditState state, LightKin section)
+    public static IHtmlControl GetContactEdit(HttpContext httpContext, WuiInitiator initiator, EditState state, LightKin section)
     {
       string returnUrl = UrlHlp.ShopUrl("page", section.Id);
 
@@ -515,7 +515,7 @@ namespace Site.Engine
             HtmlHlp.CKEditorCreate("content", section.Get(SectionType.Widget),
               "200px", true)
           ),
-          EditElementHlp.GetDescriptionImagesPanel(state, section.Id),
+          EditElementHlp.GetDescriptionImagesPanel(initiator, state, section.Id),
           DecorEdit.FieldInputBlock("Виджет карты 2ГИС",
             new HPanel(
               new HTextView(@"Если адрес предприятия изменился, то перейдите <a href='http://api.2gis.ru/widgets/firmsonmap/' target='blank'>по ссылке</a>, получите виджет карты для нового адреса и вставьте его в поле ниже.")
@@ -532,7 +532,7 @@ namespace Site.Engine
         EditElementHlp.GetButtonsPanel(
           DecorEdit.SaveButton()
           .CKEditorOnUpdateAll()
-          .Event("save_section", "editContent",
+          .Event(initiator, "save_section", "editContent",
             delegate (JsonData json)
             {
               string title = json.GetText("title");

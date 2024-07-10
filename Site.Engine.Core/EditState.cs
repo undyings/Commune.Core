@@ -4,10 +4,8 @@ using NitroBolt.Wui;
 
 namespace Site.Engine
 {
-  public class EditState : IWuiState
+  public class EditState
   {
-		public WuiCallKind CallKind { get; set; }
-
 		public readonly WebOperation Operation = new WebOperation();
 
     //hack чтобы можно было редактировать только что созданный объект

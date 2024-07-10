@@ -12,8 +12,8 @@ namespace Commune.Html
 {
 	public class HttpRequestCoreAdapter : IRequestAdapter<RequestData, ContentResult>
 	{
-		public static ContentResult Process<TState>(string method, JObject? body, Func<TState, JsonData[], RequestData, HtmlResult<HElement>> hViewCreator)
-		  where TState : class, IWuiState, new()
+		public static ContentResult Process<TState>(string method, JObject? body, Func<WuiInitiator, TState, JsonData[], RequestData, HtmlResult<HElement>> hViewCreator)
+		  where TState : class, new()
 		{
 			return HWebApiSynchronizeHandler.Process<RequestData, ContentResult, TState>(
 				new RequestData(method, body),

@@ -61,17 +61,18 @@ namespace Commune.Data
 			get { return objectBox; }
 		}
 
-		//public int NewPropertyIndex(int propertyKind)
+		//public TField Get<TField>(IPropertyBlank<PropertyRow, TField> property, int propertyIndex)
 		//{
-		//	PropertyRow[] rows = Box.PropertiesByObjectIdWithKind.Rows(propertyKind, Id);
-		//	if (rows.Length != 0)
-		//		return rows.Last().PropertyIndex + 1;
-		//	return 0;
+		//	PropertyRow? row = this.Box.PropertiesByObjectIdWithKind.Row(property.Kind, propertyIndex, Id);
+		//	if (row == null)
+		//		return property.Field.DefaultValue;
+
+		//	return property.Field.GetValue(row);
 		//}
 
 		public TField Get<TField>(IPropertyBlank<PropertyRow, TField> property, int propertyIndex)
 		{
-			PropertyRow? row = this.Box.PropertiesByObjectIdWithKind.Row(property.Kind, propertyIndex, Id);
+			PropertyRow? row = FindPropertyRow(property, propertyIndex);
 			if (row == null)
 				return property.Field.DefaultValue;
 
@@ -84,22 +85,48 @@ namespace Commune.Data
 		}
 
 
-		PropertyRow FindOrCreateRow(int propertyKind, int propertyIndex)
+		//PropertyRow FindOrCreateRow(int propertyKind, int propertyIndex)
+		//{
+		//	PropertyRow? row = objectBox.PropertiesByObjectIdWithKind.Row(propertyKind, propertyIndex, Id);
+		//	if (row != null)
+		//		return row;
+
+		//	PropertyRow newRow = objectBox.CreatePropertyRow(Id, propertyKind, propertyIndex);
+
+		//	objectBox.PropertiesByObjectIdWithKind.InsertInArray(newRow, propertyIndex);
+		//	return newRow;
+		//}
+
+		//public void Set<TField>(IPropertyBlank<PropertyRow, TField> property, int propertyIndex, TField propertyValue)
+		//{
+		//	PropertyRow row = FindOrCreateRow(property.Kind, propertyIndex);
+		//	property.Field.SetValue(row, propertyValue);
+		//}
+
+		PropertyRow? FindPropertyRow(IPropertyBlank<PropertyRow> property, int propertyIndex)
 		{
-			PropertyRow? row = objectBox.PropertiesByObjectIdWithKind.Row(propertyKind, propertyIndex, Id);
-			if (row != null)
-				return row;
-
-			PropertyRow newRow = objectBox.CreatePropertyRow(Id, propertyKind, propertyIndex);
-
-			objectBox.PropertiesByObjectIdWithKind.InsertInArray(newRow, propertyIndex);
-			return newRow;
+			PropertyRow[] rows = objectBox.PropertiesByObjectIdWithKind.Rows(property.Kind, Id);
+			int position = _.BinarySearch(rows, propertyIndex,
+				delegate (PropertyRow row) { return row.PropertyIndex; }, Comparer<int>.Default.Compare);
+			if (position < 0)
+				return null;
+			return rows[position];
 		}
 
 		public void Set<TField>(IPropertyBlank<PropertyRow, TField> property, int propertyIndex, TField propertyValue)
 		{
-			PropertyRow row = FindOrCreateRow(property.Kind, propertyIndex);
-			property.Field.SetValue(row, propertyValue);
+			PropertyRow? row = FindPropertyRow(property, propertyIndex);
+
+			if (row != null)
+			{
+				property.Field.SetValue(row, propertyValue);
+			}
+			else if (row == null)
+			{
+				PropertyRow newRow = Box.CreatePropertyRow(Id, property.Kind, propertyIndex);
+				property.Field.SetValue(newRow, propertyValue);
+				Box.PropertyTable.AddRow(newRow);
+			}
 		}
 
 		public void Set<TField>(IPropertyBlank<PropertyRow, TField> property, TField propertyValue)

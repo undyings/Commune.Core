@@ -33,8 +33,11 @@ namespace Commune.Html
 
     public HElement ToHtml(string cssClassName, StringBuilder css)
     {
-      DefaultExtensionContainer defaults = new DefaultExtensionContainer(this);
-      //defaults.OnClick(";");
+			hdata? onevent = GetExtended("onevent") as hdata;
+
+			DefaultExtensionContainer defaults = new(this);
+      if (onevent != null)
+        defaults.OnClick(";");
 
       HtmlHlp.AddClassToCss(css, cssClassName, CssExtensions);
 
@@ -71,11 +74,10 @@ namespace Commune.Html
           elements.Add(element);
       }
 
-      hevent? onevent = GetExtended("onevent") as hevent;
       if (onevent != null)
         elements.Add(onevent);
 
-      return new HEventElement("div", HtmlHlp.ContentForHElement(this, cssClassName, elements.ToArray()));
+      return new HElement("div", HtmlHlp.ContentForHElement(this, cssClassName, elements.ToArray()));
     }
   }
 }

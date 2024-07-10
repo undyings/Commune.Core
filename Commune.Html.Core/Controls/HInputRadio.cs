@@ -7,29 +7,28 @@ using NitroBolt.Wui;
 
 namespace Commune.Html
 {
-  public class HInputRadio : ExtensionContainer, IHtmlControl
+  public class HInputRadio : ExtensionContainer, IHtmlControl, IEventEditExtension
   {
     readonly string groupName;
-    readonly object objectId;
+    //readonly object objectId;
     readonly bool isChecked;
-    readonly Action<JsonData>? eventHandler;
+    //readonly Action<JsonData>? eventHandler;
     readonly HStyle[] pseudoClasses;
 
-    public HInputRadio(string groupName, object objectId, bool isChecked, 
-      Action<JsonData>? eventHandler, params HStyle[] pseudoClasses) :
+    public HInputRadio(string groupName, object objectId, bool isChecked, params HStyle[] pseudoClasses) :
       base("HInputRadio", string.Format("{0}_{1}", groupName, objectId))
     {
       this.groupName = groupName;
-      this.objectId = objectId;
+      //this.objectId = objectId;
       this.isChecked = isChecked;
-      this.eventHandler = eventHandler;
+      //this.eventHandler = eventHandler;
       this.pseudoClasses = pseudoClasses;
-    }
+		}
 
-    public HInputRadio(string groupName, object objectId, bool isChecked, params HStyle[] pseudoClasses) :
-        this(groupName, objectId, isChecked, null, pseudoClasses)
-    {
-    }
+    //public HInputRadio(string groupName, object objectId, bool isChecked, params HStyle[] pseudoClasses) :
+    //    this(groupName, objectId, isChecked, null, pseudoClasses)
+    //{
+    //}
 
     static readonly HBuilder h = HBuilder.Extension;
 
@@ -45,32 +44,39 @@ namespace Commune.Html
       foreach (HStyle pseudo in pseudoClasses)
         HtmlHlp.AddStyleToCss(css, cssClassName, pseudo);
 
-      List<object> elements = new List<object>();
-      elements.Add(h.type("radio"));
-      elements.Add(new HAttribute("name", groupName));
-      elements.Add(h.data("name", Name));
-      elements.Add(h.data("id", Name));
+      List<object> elements = new() 
+      {
+				h.type("radio"),
+        new HAttribute("id", Name),
+				new HAttribute("name", groupName),
+				h.data("name", Name),
+				h.data("id", Name)
+			};
       if (isChecked)
         elements.Add(h.@checked());
 
-      if (eventHandler != null)
-      {
-        hevent onevent = HtmlExt.InnerEvent(groupName, "", eventHandler, objectId);
-        elements.Add(onevent);
+			hdata? onevent = GetExtended("onevent") as hdata;
+			if (onevent != null)
+				elements.Add(onevent);
 
-        return new HEventElement("input", HtmlHlp.ContentForHElement(this, cssClassName, elements.ToArray()));
-      }
+			//if (eventHandler != null)
+			//{
+			//  hdata onevent = HtmlExt.InnerEvent(groupName, "", objectId);
+			//  elements.Add(onevent);
 
-      //elements.Add(h.value(objectId));
-      //hevent onevent = GetExtended("onevent") as hevent;
-      //if (onevent != null)
-      //{
-      //  elements.Add(onevent);
+			//  return h.Input(HtmlHlp.ContentForHElement(this, cssClassName, elements.ToArray()));
+			//}
 
-      //  return new HEventElement("input", HtmlHlp.ContentForHElement(this, cssClassName, elements.ToArray()));
-      //}
+			//elements.Add(h.value(objectId));
+			//hevent onevent = GetExtended("onevent") as hevent;
+			//if (onevent != null)
+			//{
+			//  elements.Add(onevent);
 
-      return h.Input(HtmlHlp.ContentForHElement(this, cssClassName, elements.ToArray()));
+			//  return new HEventElement("input", HtmlHlp.ContentForHElement(this, cssClassName, elements.ToArray()));
+			//}
+
+			return h.Input(HtmlHlp.ContentForHElement(this, cssClassName, elements.ToArray()));
     }
   }
 }
