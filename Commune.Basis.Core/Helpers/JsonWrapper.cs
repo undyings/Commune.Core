@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -18,7 +19,20 @@ namespace Commune.Basis
 
 			return sb.ToString();
 		}
+	}
 
+	public class JwCode : IJwElement
+	{
+		readonly string Code;
+		public JwCode(string code)
+		{
+			Code = code;
+		}
+
+		public override void ToJson(StringBuilder sb)
+		{
+			sb.Append(Code);
+		}
 	}
 
 	public class JwValue : IJwElement
@@ -48,7 +62,8 @@ namespace Commune.Basis
 		{
 			if (WithQuote)
 				sb.Append('"');
-			sb.Append(Value);
+			sb.Append(JavaScriptEncoder.Default.Encode(Value));
+			//sb.Append(Value);
 			if (WithQuote)
 				sb.Append('"');
 		}
@@ -122,6 +137,11 @@ namespace Commune.Basis
 		public JwArray(IEnumerable<JwArray> arrays)
 		{
 			this.Items = arrays;
+		}
+
+		public JwArray(string key, IJwElement value)
+		{
+			this.Items = new IJwElement[] { new JwValue(key), value };
 		}
 
 		public override void ToJson(StringBuilder sb)

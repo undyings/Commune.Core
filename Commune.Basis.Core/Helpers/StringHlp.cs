@@ -62,6 +62,22 @@ namespace Commune.Basis
       return sb.AppendJsonRawField(", ", fieldName, fieldValue);
     }
 
+    public static string ParticipleWithMeasureValue(int value,
+      string participleRoot, string participleEnding1, string participleEnding2_4, string participleEnding5_10,
+      string measureRoot, string measureEnding1, string measureEnding2_4, string measureEnding5_10)
+    {
+      return string.Format("{0} {1} {2}",
+        GetMeasureUnitWithEnding(value, participleRoot, participleEnding1, participleEnding2_4, participleEnding5_10),
+        value,
+        GetMeasureUnitWithEnding(value, measureRoot, measureEnding1, measureEnding2_4, measureEnding5_10)
+      );
+    }
+
+		public static string MeasureValueToDisplay(int value, string root, string ending1, string ending2_4, string ending5_10)
+    {
+      return value.ToString() + " " + GetMeasureUnitWithEnding(value, root, ending1, ending2_4, ending5_10);
+    }
+
 		public static string GetMeasureUnitWithEnding(int numeral, string root,
       string ending1, string ending2_4, string ending5_10)
     {
@@ -210,7 +226,7 @@ namespace Commune.Basis
   }
   #endregion
 
-    public static string Join<T>(string separator, IEnumerable items, Func<T, string> toStringConverter)
+    public static string Join<T>(string separator, IEnumerable<T> items, Func<T, string> toStringConverter)
     {
       List<string> strs = new List<string>();
       foreach (T item in items)

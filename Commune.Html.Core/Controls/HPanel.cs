@@ -29,6 +29,11 @@ namespace Commune.Html
     {
     }
 
+    public HPanel(string name, IHtmlControl control, params HStyle[] pseudoClasses) :
+      this(name, new IHtmlControl[] { control }, pseudoClasses)
+    {
+    }
+
     static readonly HBuilder h = HBuilder.Extension;
 
     public HElement ToHtml(string cssClassName, StringBuilder css)

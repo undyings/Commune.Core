@@ -5,6 +5,7 @@ using System.Data;
 using System.Web;
 using Commune.Basis;
 using System.Text.Json;
+using Serilog;
 
 namespace Commune.Data
 {
@@ -22,7 +23,7 @@ namespace Commune.Data
 
 			string jsonIds = Create(field);
 
-			if (!uniqueChecker.IsUniqueKey(context, row.ObjectId, row.TypeId, jsonIds, row.ActFrom))
+			if (!uniqueChecker.IsUniqueKey(context, row.ObjectId, row.TypeId, jsonIds, null))
 				return false;
 
 			row.JsonId = jsonIds;
@@ -48,7 +49,7 @@ namespace Commune.Data
 
 			try
 			{
-				return JsonSerializer.Deserialize<TField>(jsonString, JsonHlp.WithIncludeFields) ?? new TField();
+				return JsonSerializer.Deserialize<TField>(jsonString, JsonHlp.Cyrillic) ?? new TField();
 			}
 			catch
 			{
@@ -58,12 +59,12 @@ namespace Commune.Data
 
 		public string Create(TField field)
 		{
-			return JsonSerializer.Serialize(field, JsonHlp.WithIncludeFields);
+			return JsonSerializer.Serialize(field, JsonHlp.Cyrillic);
 		}
 
 		public void SetWithoutCheck(TRow row, TField field)
 		{
-			string jsonStr = JsonSerializer.Serialize(field, JsonHlp.WithIncludeFields);
+			string jsonStr = JsonSerializer.Serialize(field, JsonHlp.Cyrillic);
 
 			FieldBlank.SetValue(row, jsonStr);
 		}

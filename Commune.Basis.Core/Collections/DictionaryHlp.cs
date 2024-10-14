@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
+using Microsoft.AspNetCore.Routing.Template;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -26,6 +28,27 @@ namespace Commune.Basis
 				index[key] = values;
 			}
 			values.Add(value);
+		}
+
+		public static Dictionary<TKey, TSource> SafeToDictionary<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keyGetter)
+			where TKey : notnull
+		{
+			return SafeToDictionary(source, keyGetter, item => item);
+		}
+
+		public static Dictionary<TKey, TElement> SafeToDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keyGetter, Func<TSource, TElement> elementGetter)
+			where TKey : notnull
+		{
+			int capacity = 0;
+			if (source is ICollection<TSource> collection)
+				capacity = collection.Count;
+
+			Dictionary<TKey, TElement> dict = new(capacity);
+			foreach (TSource item in source)
+			{
+				dict[keyGetter(item)] = elementGetter(item);
+			}
+			return dict;
 		}
 
 

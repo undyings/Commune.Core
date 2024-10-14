@@ -13,7 +13,7 @@ namespace Commune.Basis
 {
 	public class JsonHlp
 	{
-		public readonly static JsonSerializerOptions WithIncludeFields = new() 
+		public readonly static JsonSerializerOptions Cyrillic = new() 
 		{ 
 			IncludeFields = true, Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic) 
 		};
@@ -25,7 +25,7 @@ namespace Commune.Basis
 
 			try
 			{
-				return JsonSerializer.Deserialize<T>(json, WithIncludeFields) ?? new T();
+				return JsonSerializer.Deserialize<T>(json, Cyrillic) ?? new T();
 			}
 			catch
 			{
@@ -35,7 +35,7 @@ namespace Commune.Basis
 
 		public static string Serialize<T>(T obj)
 		{
-			return JsonSerializer.Serialize(obj, typeof(T), WithIncludeFields);
+			return JsonSerializer.Serialize(obj, typeof(T), Cyrillic);
 		}
 
 		public static T SafeLoad<T>(string path) where T : new()
@@ -45,7 +45,7 @@ namespace Commune.Basis
 				if (!File.Exists(path))
 					return new T();
 
-				return JsonSerializer.Deserialize<T>(File.ReadAllText(path), WithIncludeFields) ?? new T();
+				return JsonSerializer.Deserialize<T>(File.ReadAllText(path), Cyrillic) ?? new T();
 			}
 			catch (Exception ex)
 			{
@@ -56,7 +56,7 @@ namespace Commune.Basis
 
 		public static void Save<T>(T obj, string path)
 		{
-			string json = JsonSerializer.Serialize(obj, WithIncludeFields);
+			string json = JsonSerializer.Serialize(obj, Cyrillic);
 			File.WriteAllText(path, json);
 		}
 	}

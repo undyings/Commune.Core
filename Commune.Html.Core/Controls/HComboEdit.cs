@@ -22,10 +22,10 @@ namespace Commune.Html
       );
     }
 
-    readonly T selected;
+		readonly T selected;
     readonly Tuple<T, string>[] comboItems;
 
-    public HComboEdit(string dataName, T selected, params Tuple<T, string>[] comboItems) :
+		public HComboEdit(string dataName, T selected, params Tuple<T, string>[] comboItems) :
       base("HComboEdit", dataName)
     {
       this.selected = selected;
@@ -36,7 +36,7 @@ namespace Commune.Html
 
     public HElement ToHtml(string cssClassName, StringBuilder css)
     {
-      DefaultExtensionContainer defaults = new DefaultExtensionContainer(this);
+      DefaultExtensionContainer defaults = new(this);
       defaults.Cursor(CursorStyle.Pointer);
 
       HtmlHlp.AddClassToCss(css, cssClassName, CssExtensions);
